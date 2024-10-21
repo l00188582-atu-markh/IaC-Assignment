@@ -1,11 +1,37 @@
 Description: >
   This template is used to create and deploy a simple VPC with one public and one private subnet and associated gateways
+
+Parameters:
+  VpcCidrBlock:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: CIDR Block for the VPC
   
+  PubSubnetCidrBlock:
+    Type: String
+    Default: 10.0.0.0/28
+    Description: CIDR Block for the public subnet
+  
+  PrvSubnetCidrBlock:
+    Type: String
+    Default: 10.0.1.0/28
+    Description: CIDR Block for the private subnet    
+
+  PubAvailabilityZone:
+    Type: String
+    Default: eu-west-1a
+    Description: Availability Zone for the public subnet
+  
+  PrvAvailabilityZone:
+    Type: String
+    Default: eu-west-1a    
+    Description: Availability Zone for the private subnet
+    
 Resources: 
   FridayHittVpc:
     Type: AWS::EC2::VPC
     Properties: 
-      CidrBlock: 10.0.0.0/16
+      CidrBlock: !Ref VpcCidrBlock
       Tags:
         - Key: Name
           Value: "MH-VPC"
@@ -13,9 +39,9 @@ Resources:
   FridayHittPubSubnet:
     Type: AWS::EC2::Subnet
     Properties: 
-      AvailabilityZone: eu-west-1a
+      AvailabilityZone: !Ref PubAvailabilityZone
       VpcId: !Ref FridayHittVpc
-      CidrBlock: 10.0.0.0/28
+      CidrBlock: !Ref PubSubnetCidrBlock
       MapPublicIpOnLaunch: true        
       Tags: 
         - Key: Name
@@ -24,9 +50,9 @@ Resources:
   FridayHittPrvSubnet:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: eu-west-1a
+      AvailabilityZone: !Ref PrvAvailabilityZone
       VpcId: !Ref FridayHittVpc
-      CidrBlock: 10.0.1.0/28
+      CidrBlock: !Ref PrvSubnetCidrBlock
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -57,7 +83,10 @@ Resources:
   FridayHittNatGateway:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt [ FridayHittElasticIP, AllocationId ]
+      AllocationId:
+        Fn::GetAtt:
+        - FridayHittElasticIP
+        - AllocationId
       SubnetId: !Ref FridayHittPrvSubnet
       Tags:
         - Key: Name
@@ -108,47 +137,17 @@ Resources:
     Properties:
        SubnetId: !Ref FridayHittPrvSubnet
        RouteTableId: !Ref FridayHittPrivateRouteTable
-       
-# EC2 Instances:
-   
+
+# EC2 Instances:  
+  
   PrvEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-00385a401487aefa4
-      SecurityGroupIds: [ !GetAtt PrvSecurityGrp.GroupId ]
+      SecurityGroups: [ !Ref PrvSecurityGrp ]
       InstanceType: t2.micro
-      SubnetId: !Ref FridayHittPrvSubnet
-      KeyName: first-ec2-key-pair
-      Tags: 
-        - Key: Name
-          Value: "MH-Private-EC2"
       
   PrvSecurityGrp:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Enable HTTP access via port 80 + SSH
-      SecurityGroupIngress: 
-        - CidrIp: 0.0.0.0/0 # Doesn't need this
-          IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-        - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
- 
-  PubEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties: 
-      ImageId: ami-00385a401487aefa4
-      SecurityGroupIds: [ !GetAtt PubSecurityGrp.GroupId ]
-      SubnetId: !Ref FridayHittPubSubnet
-      KeyName: first-ec2-key-pair
-      Tags:
-        - Key: Name
-          Value: "MH-Public-EC2"
-  
-  PubSecurityGrp:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enable HTTP access via port 80 + SSH
@@ -160,5 +159,25 @@ Resources:
         - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
           IpProtocol: tcp
           FromPort: 22
-          ToPort: 22     
-  
+          ToPort: 22
+ 
+  PubEC2Instance:
+  Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: ami-00385a401487aefa4
+      SecurityGroups: [ !Ref PubSecurityGrp ]
+      InstanceType: t2.micro
+       
+  PubSecurityGrp:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: Enable HTTP access via port 80 + SSH
+    SecurityGroupIngress: 
+      - CidrIp: 0.0.0.0/0
+        IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+      - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
+        IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22       
