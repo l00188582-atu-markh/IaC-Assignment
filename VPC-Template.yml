@@ -32,3 +32,16 @@ Resources:
         - Key: Name
           Value: "MH-Private-Subnet"
             
+  FridayHittInetGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn: FridayHittVpc
+    Properties:
+      Tags:
+        - Key: Name
+          Value: "MH-Inet-Gateway"
+
+  AttachInetGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref FridayHittVpc
+      InternetGatewayId: !Ref FridayHittInetGateway
