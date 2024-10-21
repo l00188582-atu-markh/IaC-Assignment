@@ -1,3 +1,3 @@
 # IaC CloudFormations Assignment
 
-Create a mini-netork with public and private subnets 
+Create a mini-network with public and private subnets 
