@@ -1,0 +1,11 @@
+Description: >
+  This template is used to create and deploy a simple VPC with one public and one private subnet and associated gateways
+  
+Resources: 
+  FridayHittVpc:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: "MH-VPC"
