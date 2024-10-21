@@ -9,3 +9,26 @@ Resources:
       Tags:
         - Key: Name
           Value: "MH-VPC"
+          
+  FridayHittPubSubnet:
+    Type: AWS::EC2::Subnet
+    Properties: 
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref FridayHittVpc
+      CidrBlock: 10.0.0.0/28
+      MapPublicIpOnLaunch: true        
+      Tags: 
+        - Key: Name
+          Value: "MH-Public-Subnet"
+            
+  FridayHittPrvSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref FridayHittVpc
+      CidrBlock: 10.0.1.0/28
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: "MH-Private-Subnet"
+            
