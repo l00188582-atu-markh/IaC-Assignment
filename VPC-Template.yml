@@ -66,3 +66,50 @@ Resources:
         - Key: Name
           Value: "MH-NATGateway"
           
+  FridayHittPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref FridayHittVpc
+      Tags: 
+        - Key: Name
+          Value: "MH-PublicRouteTable"
+
+  FridayHittRouteToIGW:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - FridayHittInetGateway
+      - AttachInetGateway
+    Properties:
+      RouteTableId: !Ref FridayHittPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref FridayHittInetGateway
+              
+  FridayHittPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      VpcId: !Ref FridayHittVpc
+      Tags:
+        - Key: Name
+          Value: "MH-PrivateRouteTable"
+          
+  FridayHittRouteToNAT:
+    Type: AWS::EC2::Route
+    DependsOn:  FridayHittRouteToIGW
+    Properties:
+      RouteTableId: !Ref FridayHittPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref FridayHittNatGateway
+      
+  PublicRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref FridayHittPubSubnet
+      RouteTableId: !Ref FridayHittPublicRouteTable
+      
+  PrivateRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+       SubnetId: !Ref FridayHittPrvSubnet
+       RouteTableId: !Ref FridayHittPrivateRouteTable
+       
+    
