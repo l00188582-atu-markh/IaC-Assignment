@@ -130,12 +130,12 @@ Resources:
       GroupDescription: Enable HTTP access via port 80 + SSH
       SecurityGroupIngress: 
         - CidrIp: 0.0.0.0/0 
-          IpProtocol: tcp
-          FromPort: 80
+          IpProtocol: tcp  #This should be refined to restricted list
+          FromPort: 80 # http
           ToPort: 80
         - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
           IpProtocol: tcp
-          FromPort: 22
+          FromPort: 22 # ssh
           ToPort: 22
  
   PubEC2Instance:
@@ -155,12 +155,38 @@ Resources:
       VpcId: !Ref FridayHittVpc
       GroupDescription: Enable HTTP access via port 80 + SSH
       SecurityGroupIngress: 
-        - CidrIp: 0.0.0.0/0
+        - CidrIp: 0.0.0.0/0 
           IpProtocol: tcp
-          FromPort: 80
+          FromPort: 80 # http
           ToPort: 80
         - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
           IpProtocol: tcp
-          FromPort: 22
+          FromPort: 22 # ssh
           ToPort: 22     
   
+# Bastion Instance:
+
+  BastionInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-00385a401487aefa4
+      SecurityGroupIds: [ !GetAtt BastionSecurityGrp.GroupId ]
+      InstanceType: t2.micro
+      SubnetId: !Ref FridayHittPubSubnet # Bastion needs to be on the public subnet 
+      KeyName: first-ec2-key-pair
+      Tags:
+        - Key: Name
+          Value: "MH-Bastion-EC2"
+          
+  BastionSecurityGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref FridayHittVpc
+      GroupDescription: Enable Bastion access - inbound via shh and onward to internal EC2 instances in both subnets
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 22 # ssh
+          ToPort: 22
+          
+      
