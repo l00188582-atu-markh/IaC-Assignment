@@ -129,8 +129,8 @@ Resources:
       VpcId: !Ref FridayHittVpc
       GroupDescription: Enable HTTP access via port 80 + SSH
       SecurityGroupIngress: 
-        - CidrIp: 0.0.0.0/0 
-          IpProtocol: tcp  #This should be refined to restricted list
+        - CidrIp: 0.0.0.0/0 #This should be refined to restricted list
+          IpProtocol: tcp  
           FromPort: 80 # http
           ToPort: 80
         - CidrIp:  0.0.0.0/0 #This should be refined to restricted list
@@ -143,6 +143,7 @@ Resources:
     Properties: 
       ImageId: ami-00385a401487aefa4
       SecurityGroupIds: [ !GetAtt PubSecurityGrp.GroupId ]
+      InstanceType: t2.micro
       SubnetId: !Ref FridayHittPubSubnet
       KeyName: first-ec2-key-pair
       Tags:
@@ -188,5 +189,29 @@ Resources:
           IpProtocol: tcp
           FromPort: 22 # ssh
           ToPort: 22
-          
+
+Outputs:  
+  BastionPublicIp:
+    Description: 'Bastion Public IP'
+    Value: !Sub 'http://${BastionInstance.PublicIp}'
+    Export:
+      Name: BastionPublicIp
+      
+  PrivateEC2Ip:
+    Description: 'Private EC2 private IP'
+    Value: !Sub 'http://${PrvEC2Instance.PrivateIp}
+    Export:
+      Name: PrivateEC2prvIp
+      
+  PublicEC2Ip_prv:
+    Description: 'Public EC2 private IP'
+    Value: !Sub 'http://${PubEC2Instance.PrivateIp}   
+    Export:
+      Name: PublicEC2prvIp 
+
+  PublicEC2Ip_pub:
+    Desription: 'Public EC2 public IP'
+    Value: !Sub 'http://${PubEC2Instance.PublicIp}
+
+    
       
