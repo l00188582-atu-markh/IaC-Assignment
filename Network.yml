@@ -210,8 +210,10 @@ Outputs:
       Name: PublicEC2prvIp 
 
   PublicEC2IpPub:
-    Desription: 'Public EC2 public IP'
+    Description: 'Public EC2 public IP'
     Value: !Sub 'http://${PubEC2Instance.PublicIp}'
+    Export:
+      Name: PublicEC2pubIp
 
     
       
