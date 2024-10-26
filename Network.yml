@@ -199,19 +199,19 @@ Outputs:
       
   PrivateEC2Ip:
     Description: 'Private EC2 private IP'
-    Value: !Sub 'http://${PrvEC2Instance.PrivateIp}
+    Value: !Sub 'http://${PrvEC2Instance.PrivateIp}'
     Export:
       Name: PrivateEC2prvIp
       
-  PublicEC2Ip_prv:
+  PublicEC2IpPrv:
     Description: 'Public EC2 private IP'
-    Value: !Sub 'http://${PubEC2Instance.PrivateIp}   
+    Value: !Sub 'http://${PubEC2Instance.PrivateIp}'   
     Export:
       Name: PublicEC2prvIp 
 
-  PublicEC2Ip_pub:
+  PublicEC2IpPub:
     Desription: 'Public EC2 public IP'
-    Value: !Sub 'http://${PubEC2Instance.PublicIp}
+    Value: !Sub 'http://${PubEC2Instance.PublicIp}'
 
     
       
